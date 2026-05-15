@@ -1,0 +1,14 @@
+bin/
+build/
+.pixi/
+compile_commands.json
+.DS_Store
+imgui.ini
+.vscode/
+
+# Local dependencies and artifacts.
+third_party/
+models/
+artifacts/
+logs/
+reference_repos/

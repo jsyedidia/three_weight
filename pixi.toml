@@ -1,0 +1,18 @@
+[workspace]
+name = "twalib"
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64", "osx-arm64"]
+
+[dependencies]
+cmake = ">=4.3.0,<5"
+ninja = ">=1.11,<2"
+cxx-compiler = ">=1.11,<2"
+glfw = ">=3.4,<4"
+imgui = ">=1.91,<2"
+
+[tasks]
+configure = { cmd = ["cmake", "-S", ".", "-B", "build/cmake", "-G", "Ninja"] }
+build = { cmd = ["cmake", "--build", "build/cmake"], depends-on = ["configure"] }
+test = { cmd = ["ctest", "--test-dir", "build/cmake", "--output-on-failure"], depends-on = ["build"] }
+gui = { cmd = ["build/cmake/bin/gui"], depends-on = ["build"] }
+sudoku = { cmd = ["build/cmake/bin/sudoku"], depends-on = ["build"] }
