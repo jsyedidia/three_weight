@@ -22,7 +22,7 @@ The resulting code has been reviewed, tested, and maintained by Jonathan Yedidia
 - `include/twalib/`: public headers
 - `src/`: library implementation
 - `apps/`: executables
-- `data`: input data files for the executables
+- `data/`: input data files for the executables
 - `docs/`: documentation
 - `tests/`: regression tests
 
