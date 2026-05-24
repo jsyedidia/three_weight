@@ -39,14 +39,6 @@ auto validate_fits(double radius, Coordinate_range range, const char* name) -> v
   }
 }
 
-auto set_pair_zero_weight(
-    std::span<Weighted_value_exchange> exchanges,
-    double x,
-    double y) -> void {
-  exchanges[0].set(Weighted_value{x, Message_weight::zero});
-  exchanges[1].set(Weighted_value{y, Message_weight::zero});
-}
-
 struct Grid_cell {
   int x = 0;
   int y = 0;
@@ -262,11 +254,6 @@ auto Circle_packing::create_kiss_factor(
     const double dx = x_value - center_x;
     const double dy = y_value - center_y;
     const double distance = std::hypot(dx, dy);
-
-    if (distance == exact_distance) {
-      set_pair_zero_weight(exchanges, x_value, y_value);
-      return;
-    }
 
     const double unit_x = distance == 0.0 ? 1.0 : dx / distance;
     const double unit_y = distance == 0.0 ? 0.0 : dy / distance;
