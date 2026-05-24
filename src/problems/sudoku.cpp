@@ -1,7 +1,6 @@
 #include "twalib/problems/sudoku.hpp"
 
 #include "twalib/graph/weighted_value.hpp"
-#include "twalib/minimizers/known_value.hpp"
 #include "twalib/minimizers/one_hot.hpp"
 
 #include <stdexcept>
@@ -60,10 +59,6 @@ auto Sudoku::add_to_factor_graph(
 
     variables.push_back(options);
     [[maybe_unused]] const auto cell_factor = create_one_hot_factor(graph, variables.back());
-    if (has_given) {
-      [[maybe_unused]] const auto given_factor =
-          create_known_value_factor(graph, variables.back()[given_value], 1.0);
-    }
   }
 
   for (std::size_t index = 0; index < outer_side; ++index) {

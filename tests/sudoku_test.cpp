@@ -13,11 +13,10 @@ using twalib::Sudoku;
 
 auto expect_graph_size(
     const Factor_graph& graph,
-    std::size_t outer_side,
-    std::size_t num_givens) -> void {
+    std::size_t outer_side) -> void {
   assert(graph.num_variables() == outer_side * outer_side * outer_side);
-  assert(graph.num_factors() == 4 * outer_side * outer_side + num_givens);
-  assert(graph.num_edges() == 4 * outer_side * outer_side * outer_side + num_givens);
+  assert(graph.num_factors() == 4 * outer_side * outer_side);
+  assert(graph.num_edges() == 4 * outer_side * outer_side * outer_side);
   assert(graph.num_enabled_factors() == graph.num_factors());
   assert(graph.num_enabled_edges() == graph.num_edges());
 }
@@ -36,7 +35,7 @@ auto test_size_checks_for_4x4() -> void {
   for (const auto& options : variables) {
     assert(options.size() == 4);
   }
-  expect_graph_size(graph, 4, givens.size());
+  expect_graph_size(graph, 4);
 }
 
 auto test_size_checks_for_9x9() -> void {
@@ -52,7 +51,7 @@ auto test_size_checks_for_9x9() -> void {
   for (const auto& options : variables) {
     assert(options.size() == 9);
   }
-  expect_graph_size(graph, 9, givens.size());
+  expect_graph_size(graph, 9);
 }
 
 auto test_extract_state_reports_thresholded_values() -> void {
@@ -170,7 +169,7 @@ auto test_swift_16x16_fixture_size_and_givens() -> void {
 
   assert(solution.size() == 256);
   assert(variables.size() == 256);
-  expect_graph_size(graph, 16, givens.size());
+  expect_graph_size(graph, 16);
   for (const auto& [cell, value] : givens) {
     assert(initial_state[cell] == static_cast<int>(value));
     assert(solution[cell] == static_cast<int>(value));
