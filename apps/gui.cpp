@@ -281,7 +281,7 @@ struct Solver_app {
   int domain_index = 1;
   int puzzle_index = 2;
   int build_index = 0;
-  int circle_problem_index = 0;
+  int circle_problem_index = 1;
   int circle_build_index = 0;
   std::uint64_t random_seed = 42;
   double sudoku_learning_rate = 1.0;
