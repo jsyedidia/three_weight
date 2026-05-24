@@ -1,17 +1,16 @@
 # Three-Weight Algorithm In C++
 
 This repository is a C++ implementation of the Three-Weight Algorithm (TWA) as
-a message-passing algorithm on factor graphs. The C++ library and namespace use the name `twalib` for “Three-Weight Algorithm library.”
+a message-passing algorithm on factor graphs. The C++ library and namespace use
+the name `twalib` for "Three-Weight Algorithm Library."
 
 It is an MIT-licensed port of Nate Derbinsky's SwiftADMM library 
 (https://github.com/natederbinsky/SwiftADMM) from Swift to C++. 
 
 The SwiftADMM library implements both the TWA algorithm and 
 the original ADMM algorithm that TWA improves on, but for simplicity 
-this port only implements the TWA algorithm. See https://arxiv.org/abs/1305.1961 for a detailed description of the algorithms. 
-
-The port was produced with substantial assistance from GPT-5.5. 
-The resulting code has been reviewed, tested, and maintained by Jonathan Yedidia.
+this port only implements the TWA algorithm. See https://arxiv.org/abs/1305.1961 for a 
+detailed description of the algorithms. 
 
 ## Layout
 
@@ -19,12 +18,15 @@ The resulting code has been reviewed, tested, and maintained by Jonathan Yedidia
 - `src/`: library implementation
 - `apps/`: executables
 - `data/`: input data files for the executables
-- `docs/`: documentation
 - `tests/`: regression tests
+- `docs/`: documentation
+- `notes/`: detailed explanations of the code and algorithm
 
 ## Install, build, test, and run with Pixi
 
-This repository is developed and tested on macOS. Linux support is expected through the Pixi environment but has not yet been tested. Pixi provides the C++23 compiler toolchain, CMake, Ninja, GLFW, and ImGui; you only need to install Pixi itself.
+This repository is developed and tested on macOS. Linux support is expected through the Pixi environment 
+but has not yet been tested. Pixi provides the C++23 compiler toolchain, CMake, Ninja, GLFW, and ImGui; 
+you only need to install Pixi itself.
 
 If you do not have Pixi installed, you can install it with:
 
@@ -57,3 +59,9 @@ pixi run gui
 ```
 
 See `docs/gui_help.md` for instructions on using the GUI.
+
+## Documentation
+
+The `notes/` directory contains detailed prose explanations of the algorithm
+and codebase, including concept guides and file-by-file walkthroughs. 
+See `notes/README.md` for a suggested reading order and orientation.
