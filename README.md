@@ -19,8 +19,8 @@ detailed description of the algorithms.
 - `apps/`: executables
 - `data/`: input data files for the executables
 - `tests/`: regression tests
-- `docs/`: documentation
-- `notes/`: detailed explanations of the code and algorithm
+- `docs/`: documentation for the GUI
+- `notes/`: detailed explanations of the codebase
 
 ## Install, build, test, and run with Pixi
 
