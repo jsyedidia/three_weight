@@ -178,8 +178,8 @@ constraints over iterations.
 
 ## Further Reading
 
-- `notes/src/problems/circle_packing.cpp.md` explains the implementation.
-- `notes/include/twalib/problems/circle_packing.hpp.md` explains the public
+- [`notes/src/problems/circle_packing.cpp.md`](../src/problems/circle_packing.cpp.md) explains the implementation.
+- [`notes/include/twalib/problems/circle_packing.hpp.md`](../include/twalib/problems/circle_packing.hpp.md) explains the public
   API.
-- `notes/src/minimizers/in_range.cpp.md` explains the boundary minimizer.
-- `notes/concepts/weights.md` explains zero, standard, and infinite weights.
+- [`notes/src/minimizers/in_range.cpp.md`](../src/minimizers/in_range.cpp.md) explains the boundary minimizer.
+- [`notes/concepts/weights.md`](weights.md) explains zero, standard, and infinite weights.

@@ -1,9 +1,7 @@
 # Factor Graphs
 
 This note explains what a factor graph is and how this repository uses one to
-represent optimization problems. It assumes the basic message-passing picture
-from `notes/concepts/message_passing.md` and the weight system from
-`notes/concepts/weights.md`.
+represent optimization problems.
 
 ## What Is A Factor Graph?
 
@@ -124,11 +122,11 @@ Internally, `Factor_graph` uses the PImpl idiom: the public class holds a
 types are:
 
 - `Variable_data` — per-variable state (current value, weight, incident
-  edges). See `notes/src/graph/variable_data.hpp.md`.
+  edges). See [`notes/src/graph/variable_data.hpp.md`](../src/graph/variable_data.hpp.md).
 - `Edge_data` — per-edge message state (`x`, `z`, `u`, weights, convergence
-  bookkeeping). See `notes/src/graph/edge_data.hpp.md`.
+  bookkeeping). See [`notes/src/graph/edge_data.hpp.md`](../src/graph/edge_data.hpp.md).
 - `Factor_data` — per-factor state (minimization function, exchange buffer,
-  enabled flag). See `notes/src/graph/factor_data.hpp.md`.
+  enabled flag). See [`notes/src/graph/factor_data.hpp.md`](../src/graph/factor_data.hpp.md).
 
 These are stored in three parallel vectors inside `Impl`. The handle indexes
 (e.g. `Variable_node::index`) are positions into these vectors.
@@ -170,7 +168,7 @@ The paper's iteration description maps directly to `Factor_graph::Impl::iterate`
 
 ## Further Reading
 
-- `notes/concepts/message_passing.md` — the iteration mechanics in detail.
-- `notes/concepts/weights.md` — how the three weights control message strength.
-- `notes/src/graph/factor_graph.cpp.md` — line-by-line walkthrough of the
+- [`notes/concepts/message_passing.md`](message_passing.md) — the iteration mechanics in detail.
+- [`notes/concepts/weights.md`](weights.md) — how the three weights control message strength.
+- [`notes/src/graph/factor_graph.cpp.md`](../src/graph/factor_graph.cpp.md) — line-by-line walkthrough of the
   implementation.

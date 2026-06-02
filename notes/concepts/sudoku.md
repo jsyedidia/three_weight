@@ -197,9 +197,9 @@ choice. In the Sudoku builders, zero-weight messages are not used.
 
 ## Further Reading
 
-- `notes/src/problems/sudoku.cpp.md` explains the direct builder.
-- `notes/src/problems/compact_sudoku.cpp.md` explains the compact builder.
-- `notes/src/minimizers/one_hot.cpp.md` explains the main minimizer used by
+- [`notes/src/problems/sudoku.cpp.md`](../src/problems/sudoku.cpp.md) explains the direct builder.
+- [`notes/src/problems/compact_sudoku.cpp.md`](../src/problems/compact_sudoku.cpp.md) explains the compact builder.
+- [`notes/src/minimizers/one_hot.cpp.md`](../src/minimizers/one_hot.cpp.md) explains the main minimizer used by
   Sudoku.
-- `notes/src/minimizers/known_value.cpp.md` explains the general hard-value
+- [`notes/src/minimizers/known_value.cpp.md`](../src/minimizers/known_value.cpp.md) explains the general hard-value
   minimizer, which is useful outside the current Sudoku builders.

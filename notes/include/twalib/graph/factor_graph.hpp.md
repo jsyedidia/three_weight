@@ -418,9 +418,9 @@ between them.
 
 The detailed mapping from the paper's notation to implementation state is in:
 
-- `notes/concepts/message_passing.md`
-- `notes/concepts/weights.md`
-- `notes/src/graph/factor_graph.cpp.md`
+- [`notes/concepts/message_passing.md`](../../../concepts/message_passing.md)
+- [`notes/concepts/weights.md`](../../../concepts/weights.md)
+- [`notes/src/graph/factor_graph.cpp.md`](../../../src/graph/factor_graph.cpp.md)
 
 ## Extension Notes
 

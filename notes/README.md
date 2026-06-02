@@ -6,7 +6,7 @@ graphs.
 
 ## Who These Notes Are For
 
-The primary audience is a programmer or researcher who wants to understand
+The primary audience is a programmer (or researcher) who wants to understand
 how the Three-Weight Algorithm works and how this codebase implements it. You
 do not need deep C++ experience: there is a dedicated concept note that
 explains the C++ features this code uses, written for readers who are more
@@ -23,7 +23,7 @@ The notes are organized into two categories:
   Each note covers one `.hpp` or `.cpp` file in source order.
 
 Source notes are named after the file they document. For example,
-`notes/src/graph/factor_graph.cpp.md` documents `src/graph/factor_graph.cpp`.
+[`notes/src/graph/factor_graph.cpp.md`](src/graph/factor_graph.cpp.md) documents `src/graph/factor_graph.cpp`.
 
 ## Suggested Reading Order
 
@@ -34,14 +34,14 @@ a topic is already familiar.
 
 Start here to build the mental model you need for everything else.
 
-1. **`concepts/cpp_for_python_readers.md`** — C++ syntax and idioms used in
+1. **[`concepts/cpp_for_python_readers.md`](concepts/cpp_for_python_readers.md)** — C++ syntax and idioms used in
    this codebase (references, spans, optionals, lambdas, RAII, etc.). Skip if
    you are already comfortable with modern C++.
-2. **`concepts/factor_graphs.md`** — What a factor graph is: variables,
+2. **[`concepts/factor_graphs.md`](concepts/factor_graphs.md)** — What a factor graph is: variables,
    factors, and edges.
-3. **`concepts/message_passing.md`** — How message-passing works on a factor
+3. **[`concepts/message_passing.md`](concepts/message_passing.md)** — How message-passing works on a factor
    graph, and what it means for factors and variables to exchange messages.
-4. **`concepts/weights.md`** — The three weights (zero, standard, infinite)
+4. **[`concepts/weights.md`](concepts/weights.md)** — The three weights (zero, standard, infinite)
    and how they let the algorithm express certainty, indifference, and
    ordinary opinions.
 
@@ -50,13 +50,13 @@ Start here to build the mental model you need for everything else.
 These notes cover the internal data structures that store the graph. Read them
 in this order because each builds on the previous one.
 
-5. **`src/graph/edge_data.hpp.md`** — The per-edge storage: how a single edge
+5. **[`src/graph/edge_data.hpp.md`](src/graph/edge_data.hpp.md)** — The per-edge storage: how a single edge
    holds messages traveling in both directions.
-6. **`src/graph/variable_data.hpp.md`** — The per-variable storage: how a
+6. **[`src/graph/variable_data.hpp.md`](src/graph/variable_data.hpp.md)** — The per-variable storage: how a
    variable aggregates messages from its edges.
-7. **`src/graph/factor_data.hpp.md`** — The per-factor storage: how a factor
+7. **[`src/graph/factor_data.hpp.md`](src/graph/factor_data.hpp.md)** — The per-factor storage: how a factor
    holds its edges and its minimization function.
-8. **`src/graph/factor_graph.cpp.md`** — The central `Factor_graph::Impl`
+8. **[`src/graph/factor_graph.cpp.md`](src/graph/factor_graph.cpp.md)** — The central `Factor_graph::Impl`
    class that owns all the data and runs the algorithm.
 
 ### 3. Public API Headers
@@ -64,45 +64,56 @@ in this order because each builds on the previous one.
 These notes cover the thin public types that users interact with. They are
 lightweight handles and value types.
 
-9. **`include/twalib/graph/variable_node.hpp.md`** — The `Variable_node`
+9. **[`include/twalib/graph/variable_node.hpp.md`](include/twalib/graph/variable_node.hpp.md)** — The `Variable_node`
    handle.
-10. **`include/twalib/graph/factor_node.hpp.md`** — The `Factor_node` handle.
-11. **`include/twalib/graph/graph_edge.hpp.md`** — The `Graph_edge` handle.
-12. **`include/twalib/graph/weighted_value.hpp.md`** — The `Weighted_value`
+10. **[`include/twalib/graph/factor_node.hpp.md`](include/twalib/graph/factor_node.hpp.md)** — The `Factor_node` handle.
+11. **[`include/twalib/graph/graph_edge.hpp.md`](include/twalib/graph/graph_edge.hpp.md)** — The `Graph_edge` handle.
+12. **[`include/twalib/graph/weighted_value.hpp.md`](include/twalib/graph/weighted_value.hpp.md)** — The `Weighted_value`
     struct and `Message_weight` enum.
-13. **`include/twalib/graph/weighted_value_exchange.hpp.md`** — The exchange
+13. **[`include/twalib/graph/weighted_value_exchange.hpp.md`](include/twalib/graph/weighted_value_exchange.hpp.md)** — The exchange
     buffer that minimizers read from and write to.
-14. **`include/twalib/graph/factor_graph.hpp.md`** — The public
+14. **[`include/twalib/graph/factor_graph.hpp.md`](include/twalib/graph/factor_graph.hpp.md)** — The public
     `Factor_graph` interface (PImpl front end).
 
 ### 4. Minimizers
 
 Minimizers are the "brains" of factors — they decide what messages to send.
 
-15. **`src/minimizers/one_hot.cpp.md`** — The one-hot (simplex projection)
+15. **[`src/minimizers/one_hot.cpp.md`](src/minimizers/one_hot.cpp.md)** — The one-hot (simplex projection)
     minimizer: pick exactly one variable to be 1.
-16. **`include/twalib/minimizers/one_hot.hpp.md`** — Its public header.
-17. **`src/minimizers/in_range.cpp.md`** — The range constraint minimizer.
-18. **`include/twalib/minimizers/in_range.hpp.md`** — Its public header.
-19. **`src/minimizers/known_value.cpp.md`** — The known-value minimizer.
-20. **`include/twalib/minimizers/known_value.hpp.md`** — Its public header.
-21. **`src/minimizers/spy.cpp.md`** — The spy minimizer.
-22. **`include/twalib/minimizers/spy.hpp.md`** — Its public header.
+16. **[`include/twalib/minimizers/one_hot.hpp.md`](include/twalib/minimizers/one_hot.hpp.md)** — Its public header.
+17. **[`src/minimizers/in_range.cpp.md`](src/minimizers/in_range.cpp.md)** — The range constraint minimizer.
+18. **[`include/twalib/minimizers/in_range.hpp.md`](include/twalib/minimizers/in_range.hpp.md)** — Its public header.
+19. **[`src/minimizers/known_value.cpp.md`](src/minimizers/known_value.cpp.md)** — The known-value minimizer.
+20. **[`include/twalib/minimizers/known_value.hpp.md`](include/twalib/minimizers/known_value.hpp.md)** — Its public header.
+21. **[`src/minimizers/spy.cpp.md`](src/minimizers/spy.cpp.md)** — The spy minimizer.
+22. **[`include/twalib/minimizers/spy.hpp.md`](include/twalib/minimizers/spy.hpp.md)** — Its public header.
 
 ### 5. Problem Builders
 
 Problem builders assemble a factor graph for a specific problem domain.
 
-23. **`concepts/sudoku.md`** — How Sudoku maps onto a factor graph.
-24. **`src/problems/sudoku.cpp.md`** — The basic Sudoku builder.
-25. **`include/twalib/problems/sudoku.hpp.md`** — Its public header.
-26. **`src/problems/compact_sudoku.cpp.md`** — The compact Sudoku builder
+23. **[`concepts/sudoku.md`](concepts/sudoku.md)** — How Sudoku maps onto a factor graph.
+24. **[`src/problems/sudoku.cpp.md`](src/problems/sudoku.cpp.md)** — The basic Sudoku builder.
+25. **[`include/twalib/problems/sudoku.hpp.md`](include/twalib/problems/sudoku.hpp.md)** — Its public header.
+26. **[`src/problems/compact_sudoku.cpp.md`](src/problems/compact_sudoku.cpp.md)** — The compact Sudoku builder
     (eliminates variables using givens).
-27. **`include/twalib/problems/compact_sudoku.hpp.md`** — Its public header.
-28. **`concepts/circle_packing.md`** — How circle packing maps onto a factor
+27. **[`include/twalib/problems/compact_sudoku.hpp.md`](include/twalib/problems/compact_sudoku.hpp.md)** — Its public header.
+28. **[`concepts/circle_packing.md`](concepts/circle_packing.md)** — How circle packing maps onto a factor
     graph.
-29. **`src/problems/circle_packing.cpp.md`** — The circle-packing builder.
-30. **`include/twalib/problems/circle_packing.hpp.md`** — Its public header.
+29. **[`src/problems/circle_packing.cpp.md`](src/problems/circle_packing.cpp.md)** — The circle-packing builder.
+30. **[`include/twalib/problems/circle_packing.hpp.md`](include/twalib/problems/circle_packing.hpp.md)** — Its public header.
+
+### 6. Tutorials
+
+These walk you through using the library end-to-end.
+
+31. **[`tutorials/first_graph.md`](tutorials/first_graph.md)** — Build a tiny graph by hand and run the
+    solver. Good for seeing the API without domain complexity.
+32. **[`tutorials/sudoku_cli.md`](tutorials/sudoku_cli.md)** — Use the Sudoku builder to solve a puzzle
+    from the command line.
+33. **[`tutorials/circle_packing_imgui.md`](tutorials/circle_packing_imgui.md)** — Use the circle-packing builder
+    with the ImGui visualizer.
 
 ## Tips For Reading
 
@@ -111,8 +122,13 @@ Problem builders assemble a factor graph for a specific problem domain.
   Without that context the code walkthrough will feel arbitrary.
 
 - **Follow cross-references.** When a source note says "see
-  `concepts/weights.md`", it means the explanation there is important for
+  [`concepts/weights.md`](concepts/weights.md)", it means the explanation there is important for
   understanding the current passage.
+
+- **The reading order is a suggestion, not a requirement.** If you already
+  know how factor graphs work, skip straight to the graph internals. If you
+  want to understand a specific minimizer, jump to its note directly — but
+  expect to need the concept notes for context.
 
 - **Source notes cover every non-blank line of code.** They proceed in the
   same order as the source file. You can use the Markdown headings to jump to

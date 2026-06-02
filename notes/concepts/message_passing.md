@@ -181,7 +181,8 @@ for (auto& variable : variables_) {
 
 Each variable reads the messages from all enabled incident factors, computes a
 consensus value, stores that as the variable's current belief, and sends the
-result back through each edge.
+result back through each edge. The `reset_disagreement` boolean variable determines
+whether disagreement `u_` variables should be reset to zero as described below.
 
 Incident factors may be disabled for efficiency when we know that they would
 send zero-weight messages that would not participate in consensus. Fast circle

@@ -19,7 +19,7 @@ back as factor-to-variable messages.
 - a parallel vector tracking which incoming messages had infinite weight,
 - whether the factor is currently enabled.
 
-The message-passing note `notes/concepts/message_passing.md` explains the
+The message-passing note [`notes/concepts/message_passing.md`](../../concepts/message_passing.md) explains the
 algorithmic role of factor minimization. This file note explains the C++
 storage object that supports that step.
 

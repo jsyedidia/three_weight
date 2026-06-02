@@ -868,10 +868,10 @@ File-associated notes should link back to this concept note when they encounter
 syntax that would otherwise interrupt the explanation. Good link targets
 include:
 
-- "see `std::span` in `notes/concepts/cpp_for_python_readers.md`,"
-- "see lambdas in `notes/concepts/cpp_for_python_readers.md`,"
+- "see `std::span` in [`notes/concepts/cpp_for_python_readers.md`](cpp_for_python_readers.md),"
+- "see lambdas in [`notes/concepts/cpp_for_python_readers.md`](cpp_for_python_readers.md),"
 - "see private implementation pattern in
-  `notes/concepts/cpp_for_python_readers.md`."
+  [`notes/concepts/cpp_for_python_readers.md`](cpp_for_python_readers.md)."
 
 Those file notes should still explain what the local code is doing. This note
 just keeps repeated C++ background from overwhelming every walkthrough.

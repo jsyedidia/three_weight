@@ -12,7 +12,7 @@ that number should matter:
 - standard weight means "ordinary finite opinion",
 - infinite weight means "certain value."
 
-The concept note `notes/concepts/weights.md` explains the algorithmic meaning
+The concept note [`notes/concepts/weights.md`](../../../concepts/weights.md) explains the algorithmic meaning
 of these weights in more detail.
 
 ## Main Types

@@ -15,7 +15,7 @@ An edge connects one factor to one variable. It stores:
 - whether the edge is currently enabled,
 - enough previous-message state to test convergence.
 
-The public concept note `notes/concepts/message_passing.md` explains the
+The public concept note [`notes/concepts/message_passing.md`](../../concepts/message_passing.md) explains the
 algorithmic picture. This file note focuses on how the C++ class implements
 that picture.
 

@@ -1,7 +1,7 @@
 # Weights
 
 This note explains how message weights work in this repository. It assumes the
-basic message-passing picture from `notes/concepts/message_passing.md`: factors
+basic message-passing picture from [`notes/concepts/message_passing.md`](message_passing.md): factors
 send messages to variables, variables send messages back to factors, and each
 edge stores the local values `x`, `z`, and `u`.
 
@@ -113,7 +113,7 @@ The weighted factor-to-variable message is:
 Weighted_value{message_to_variable(), weight_to_right()}
 ```
 
-There is no runtime algorithm switch here. If a minimizer writes zero,
+If a minimizer writes zero,
 standard, or infinite weight, the edge stores that weight and later reports it
 to the variable equality step.
 
@@ -300,9 +300,9 @@ send zero-weight messages.
 
 ## Where To Read Next
 
-- `notes/concepts/message_passing.md`: the full iteration cycle.
-- `notes/src/graph/edge_data.hpp.md`: how a single edge stores values,
+- [`notes/concepts/message_passing.md`](message_passing.md): the full iteration cycle.
+- [`notes/src/graph/edge_data.hpp.md`](../src/graph/edge_data.hpp.md): how a single edge stores values,
   weights, and `u`.
-- `notes/src/graph/factor_data.hpp.md`: how minimizer results are exchanged
+- [`notes/src/graph/factor_data.hpp.md`](../src/graph/factor_data.hpp.md): how minimizer results are exchanged
   with edges.
-- `notes/src/graph/factor_graph.cpp.md`: how variable equality is implemented.
+- [`notes/src/graph/factor_graph.cpp.md`](../src/graph/factor_graph.cpp.md): how variable equality is implemented.

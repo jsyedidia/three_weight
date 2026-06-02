@@ -26,7 +26,7 @@ lazily maintained cache of the currently enabled subset.
 - all incident edge handles,
 - a lazily maintained cache of enabled incident edge handles.
 
-The message-passing note `notes/concepts/message_passing.md` explains the
+The message-passing note [`notes/concepts/message_passing.md`](../../concepts/message_passing.md) explains the
 algorithmic role of variable equality. This file note explains the C++ storage
 object that supports that step.
 
