@@ -104,17 +104,6 @@ Problem builders assemble a factor graph for a specific problem domain.
 29. **[`src/problems/circle_packing.cpp.md`](src/problems/circle_packing.cpp.md)** — The circle-packing builder.
 30. **[`include/twalib/problems/circle_packing.hpp.md`](include/twalib/problems/circle_packing.hpp.md)** — Its public header.
 
-### 6. Tutorials
-
-These walk you through using the library end-to-end.
-
-31. **[`tutorials/first_graph.md`](tutorials/first_graph.md)** — Build a tiny graph by hand and run the
-    solver. Good for seeing the API without domain complexity.
-32. **[`tutorials/sudoku_cli.md`](tutorials/sudoku_cli.md)** — Use the Sudoku builder to solve a puzzle
-    from the command line.
-33. **[`tutorials/circle_packing_imgui.md`](tutorials/circle_packing_imgui.md)** — Use the circle-packing builder
-    with the ImGui visualizer.
-
 ## Tips For Reading
 
 - **Read the concept notes before the source notes.** The source notes assume
