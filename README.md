@@ -58,10 +58,10 @@ Run the GUI app with:
 pixi run gui
 ```
 
-See `docs/gui_help.md` for instructions on using the GUI.
+See [docs/gui_help.md](docs/gui_help.md) for instructions on using the GUI.
 
 ## Documentation
 
 The `notes/` directory contains detailed prose explanations of the algorithm
 and codebase, including concept guides and file-by-file walkthroughs. 
-See `notes/README.md` for a suggested reading order and orientation.
+See [notes/README.md](notes/README.md) for a suggested reading order and orientation.
