@@ -121,6 +121,38 @@ auto test_factor_enable_disable_counts_and_behavior() -> void {
   assert(nearly_equal(graph.value(variable), 10.0));
 }
 
+auto test_iterate_until_satisfied_requires_domain_predicate() -> void {
+  Factor_graph graph{};
+  const Variable_node variable = graph.create_variable(0.0);
+  [[maybe_unused]] const auto factor = twalib::create_known_value_factor(graph, variable, 4.0);
+
+  assert(!graph.iterate_until_satisfied(10, [variable](const Factor_graph& current_graph) {
+    return current_graph.value(variable) > 10.0;
+  }));
+  assert(!graph.converged());
+  assert(nearly_equal(graph.value(variable), 4.0));
+
+  assert(graph.iterate_until_satisfied(10, [variable](const Factor_graph& current_graph) {
+    return current_graph.value(variable) == 4.0;
+  }));
+  assert(graph.converged());
+}
+
+auto test_message_difference_remains_available_as_diagnostic() -> void {
+  Factor_graph graph{};
+  const Variable_node variable = graph.create_variable(0.0);
+  [[maybe_unused]] const auto factor = twalib::create_known_value_factor(graph, variable, 7.0);
+
+  assert(!graph.max_message_difference().has_value());
+  assert(!graph.iterate());
+  assert(!graph.max_message_difference().has_value());
+  assert(graph.iterate());
+  const auto max_message_difference = graph.max_message_difference();
+  assert(max_message_difference.has_value());
+  assert(*max_message_difference > 1.0);
+  assert(graph.converged());
+}
+
 auto test_lone_standard_message_resets_disagreement() -> void {
   Factor_graph graph{0.5};
   const Variable_node variable = graph.create_variable(0.0);
@@ -190,6 +222,8 @@ auto main() -> int {
   test_range_clamps_below_above_and_inside();
   test_reinitialize_resets_graph_state();
   test_factor_enable_disable_counts_and_behavior();
+  test_iterate_until_satisfied_requires_domain_predicate();
+  test_message_difference_remains_available_as_diagnostic();
   test_lone_standard_message_resets_disagreement();
   test_invalid_handles_are_explicit();
   return 0;

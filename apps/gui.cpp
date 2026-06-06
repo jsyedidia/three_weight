@@ -535,7 +535,20 @@ struct Solver_app {
 
     const std::size_t max_count = static_cast<std::size_t>(std::max(1, max_iterations));
     const auto start = std::chrono::steady_clock::now();
-    graph->iterate_until_converged(max_count);
+    if (domain() == Problem_domain::circle_packing) {
+      const Circle_packing_variables variables = circle_variables;
+      const Circle_problem problem = circle_problem();
+      const double tolerance = convergence_delta;
+      graph->iterate_until_satisfied(max_count, [variables, problem, tolerance](const Factor_graph& current_graph) {
+        return Circle_packing::max_overlap(
+                   current_graph,
+                   variables,
+                   problem.horizontal_range,
+                   problem.vertical_range) <= tolerance;
+      });
+    } else {
+      graph->iterate_until_converged(max_count);
+    }
     const auto end = std::chrono::steady_clock::now();
     last_step_ms = std::chrono::duration<double, std::milli>{end - start}.count();
     running = false;

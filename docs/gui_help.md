@@ -97,8 +97,10 @@ disagreement `u`. Sudoku and circle packing keep separate learning-rate values
 so switching domains preserves the last value used for each domain. Changing
 the learning rate marks the settings as dirty.
 
-`Convergence delta` is the per-edge message-change threshold used to decide
+`Convergence delta` is the variable belief-change threshold used to decide
 whether the graph has converged. Smaller values require tighter convergence.
+For circle packing, `Run to convergence` also requires the maximum overlap to
+be at or below this tolerance.
 Changing it marks the settings as dirty.
 
 `Max iterations` controls how many iterations `Run to convergence` may perform

@@ -13,7 +13,7 @@ An edge connects one factor to one variable. It stores:
 - the accumulated disagreement `u`,
 - the leftward and rightward message weights,
 - whether the edge is currently enabled,
-- enough previous-message state to test convergence.
+- enough previous-message state to report message-difference diagnostics.
 
 The public concept note [`notes/concepts/message_passing.md`](../../concepts/message_passing.md) explains the
 algorithmic picture. This file note focuses on how the C++ class implements
@@ -42,16 +42,16 @@ created.
 `u_` is the accumulated disagreement that shifts the messages in both
 directions.
 
-`old_message_to_factor_` and `message_difference_` are convergence bookkeeping.
-The first stores the previous leftward message when one exists; the second
-stores the absolute change from that previous message.
+`old_message_to_factor_` and `message_difference_` are diagnostic
+bookkeeping. The first stores the previous leftward message when one exists;
+the second stores the absolute change from that previous message.
 
 `weights_` stores one symbolic message weight for each direction. The nested
 `Weight_pair` type is defined later in the source, but conceptually it holds a
 leftward variable-to-factor weight and a rightward factor-to-variable weight.
 
 `enabled_` records whether this edge currently participates in factor
-minimization, variable consensus, and convergence checks.
+minimization, variable consensus, and message-difference diagnostics.
 
 ## Code Walkthrough
 
@@ -127,7 +127,7 @@ The constructor is:
 
 The member initializer list stores the attached variable handle. The body calls
 `reset` so that construction and later reinitialization use one path for
-setting `x`, `z`, `u`, weights, and convergence bookkeeping.
+setting `x`, `z`, `u`, weights, and diagnostic bookkeeping.
 
 ### `reset`
 
@@ -152,7 +152,7 @@ disagreement, and sets the variable-side consensus value from the caller's
 
 The leftward, variable-to-factor weight also comes from `reset_value`. The
 rightward, factor-to-variable weight starts as zero because the factor has not
-yet made a new proposal. The optional convergence fields are cleared because a
+yet made a new proposal. The optional diagnostic fields are cleared because a
 fresh edge has no previous message to compare with.
 
 `Factor_graph::reinitialize()` calls this with the variable's original initial
@@ -170,8 +170,9 @@ The disable function is intentionally small:
 ```
 
 Disabling an edge means the graph should ignore it in factor minimization,
-variable consensus, and convergence checks. The old numeric state remains in
-the object, but it is not active until the edge is reset and reenabled.
+variable consensus, and message-difference diagnostics. The old numeric state
+remains in the object, but it is not active until the edge is reset and
+reenabled.
 
 ### Basic Accessors
 
@@ -262,7 +263,7 @@ Variables read this value during the equality or consensus step.
 
 ### `message_difference`
 
-The convergence accessor is:
+The diagnostic accessor is:
 
 ```cpp
   [[nodiscard]] auto message_difference() const -> std::optional<double> {
@@ -271,7 +272,9 @@ The convergence accessor is:
 ```
 
 There is no difference before the edge has enough history, so the return type
-is `std::optional<double>`.
+is `std::optional<double>`. `Factor_graph::max_message_difference()` exposes
+these values for debugging; the default graph convergence check is based on
+variable belief values.
 
 ### `set_result_from_factor`
 
@@ -297,10 +300,10 @@ The factor update is:
 A factor minimizer has produced a new factor-side local value and outgoing
 weight. The edge stores those as `x_` and the rightward weight.
 
-The middle block updates convergence bookkeeping. The graph tracks changes in
-the variable-to-factor message. On the first factor update there is no
-previous value, so no difference is available yet. After that, the absolute
-difference is stored for convergence checks.
+The middle block updates diagnostic bookkeeping. The graph tracks changes in
+the variable-to-factor message. On the first factor update there is no previous
+value, so no difference is available yet. After that, the absolute difference
+is stored for diagnostics.
 
 If the factor sends certainty, accumulated disagreement should not keep
 offsetting the message. The paper resets `u` to zero when either direction has
@@ -424,7 +427,8 @@ The data members are:
 ```
 
 `variable_` is stable for the life of the edge. The three doubles are the
-message-passing state. The two optionals support convergence checking.
+message-passing state. The two optionals support message-difference
+diagnostics.
 `weights_` stores the directional TWA weights. `enabled_` supports dynamic
 factor activation, especially in fast circle packing.
 
@@ -442,7 +446,7 @@ The file closes the namespace and include guard:
 
 - `message_to_factor()` is always `z - u`.
 - `message_to_variable()` is always `x + u`.
-- Reset clears `x`, clears `u`, clears convergence history, and starts the
+- Reset clears `x`, clears `u`, clears message-difference history, and starts the
   rightward weight at zero.
 - Disabled edges keep their stored values but are ignored until reset and
   reenabled.

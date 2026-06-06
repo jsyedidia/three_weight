@@ -12,6 +12,7 @@
 #include <functional>
 #include <initializer_list>
 #include <memory>
+#include <optional>
 #include <span>
 
 namespace twalib {
@@ -43,6 +44,7 @@ class Factor_graph {
   [[nodiscard]] auto num_enabled_edges() const -> std::size_t;
   [[nodiscard]] auto num_factors() const -> std::size_t;
   [[nodiscard]] auto num_enabled_factors() const -> std::size_t;
+  [[nodiscard]] auto max_message_difference() const -> std::optional<double>;
 
   [[nodiscard]] auto create_variable(
       double initial_value,
@@ -62,6 +64,9 @@ class Factor_graph {
 
   auto iterate() -> bool;
   auto iterate_until_converged(std::size_t max_iterations) -> bool;
+  auto iterate_until_satisfied(
+      std::size_t max_iterations,
+      std::function<bool(const Factor_graph&)> is_satisfied) -> bool;
   auto reinitialize() -> void;
 
   auto add_iteration_callback(std::function<void()> callback) -> void;

@@ -41,12 +41,13 @@ understand before walking through the functions:
 ```
 
 `learning_rate_` is the `alpha` scale factor for `u` updates.
-`convergence_delta_` is the threshold below which message changes are ignored.
+`convergence_delta_` is the threshold below which variable belief-value changes
+are considered converged.
 
 `random_` is a `std::mt19937_64` engine passed to minimizers for tie-breaking.
 
 `iterations_` counts how many full iterations have been performed. `converged_`
-records whether the last iteration found all messages stable.
+records whether the last iteration found all variable belief values stable.
 
 `variables_`, `edges_`, and `factors_` are the three parallel storage vectors,
 one entry per variable node, graph edge, and factor node respectively.
@@ -77,17 +78,21 @@ The standard headers are:
 
 ```cpp
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
+#include <optional>
 #include <stdexcept>
 #include <utility>
 ```
 
 `<algorithm>` supplies `std::ranges::count_if` for counting enabled
-edges/factors. `<cstddef>` provides `std::size_t`. `<cstdint>` provides
-`std::uint64_t` for the random seed. `<initializer_list>` supports the
-brace-list overload of `create_factor`. `<stdexcept>` provides
+edges/factors. `<cmath>` provides `std::abs` for belief-value differences.
+`<cstddef>` provides `std::size_t`. `<cstdint>` provides `std::uint64_t` for
+the random seed. `<initializer_list>` supports the brace-list overload of
+`create_factor`. `<optional>` provides the return type for message-difference
+diagnostics. `<stdexcept>` provides
 `std::out_of_range` and `std::logic_error`. `<utility>` supplies `std::move`.
 
 ### Namespace
@@ -185,11 +190,34 @@ reached.
       return factor.is_enabled();
     }));
   }
+
+  [[nodiscard]] auto max_message_difference() const -> std::optional<double> {
+    double max_difference = 0.0;
+
+    for (const auto& edge : edges_) {
+      if (!edge.is_enabled()) {
+        continue;
+      }
+
+      const auto difference = edge.message_difference();
+      if (!difference.has_value()) {
+        return std::nullopt;
+      }
+      max_difference = std::max(max_difference, *difference);
+    }
+
+    return max_difference;
+  }
 ```
 
 `num_variables`, `num_edges`, and `num_factors` return total counts.
 `num_enabled_edges` and `num_enabled_factors` scan linearly and count only the
 active subset. These are diagnostic helpers, not hot-path functions.
+
+`max_message_difference` scans enabled edges and returns the largest available
+message difference. If any enabled edge has not yet accumulated enough history,
+the result is `std::nullopt`. This is a diagnostic for message/dual state; it
+does not decide default convergence.
 
 ### `create_variable`
 
@@ -288,6 +316,12 @@ The main iteration function is the heart of the solver:
 
 ```cpp
   auto iterate() -> bool {
+    return iterate_with_satisfaction([] {
+      return true;
+    });
+  }
+
+  auto iterate_with_satisfaction(const std::function<bool()>& is_satisfied) -> bool {
     if (converged_) {
       return true;
     }
@@ -296,10 +330,12 @@ The main iteration function is the heart of the solver:
       factor.minimize(edges_, random_);
     }
 
+    bool beliefs_converged = true;
     for (auto& variable : variables_) {
       const auto enabled_edges = variable.enabled_edges(edges_);
       const Weighted_value result = enforce_variable_equality(enabled_edges);
       const bool has_lone_standard_message = has_lone_standard_message_to_variable(enabled_edges);
+      beliefs_converged = beliefs_converged && belief_converged(variable.value(), result.value);
       variable.update_result(result);
 
       for (const Graph_edge edge : enabled_edges) {
@@ -311,10 +347,14 @@ The main iteration function is the heart of the solver:
     }
 
     ++iterations_;
-    converged_ = all_enabled_edges_converged();
+    converged_ = beliefs_converged;
 
     for (const auto& callback : iteration_callbacks_) {
       callback();
+    }
+
+    if (converged_ && !is_satisfied()) {
+      converged_ = false;
     }
 
     return converged_;
@@ -342,8 +382,10 @@ standard-weight factor-to-variable message exists, the `u` variable on that
 edge should be reset because there is no genuine disagreement.
 
 **Post-pass bookkeeping.** The iteration counter increments. Convergence is
-checked by scanning all enabled edges for message differences exceeding the
-threshold. Finally, iteration callbacks fire.
+checked by comparing each variable's new belief value with its previous value.
+Finally, iteration callbacks fire. If a domain-specific satisfaction predicate
+was supplied, it can clear `converged_` after callbacks when the variable
+beliefs are stable but the domain constraints are not yet satisfied.
 
 ### `iterate_until_converged`
 
@@ -361,6 +403,33 @@ threshold. Finally, iteration callbacks fire.
 
 A convenience loop. It returns `true` if convergence was reached within the
 budget, `false` otherwise.
+
+### `iterate_until_satisfied`
+
+```cpp
+  auto iterate_until_satisfied(
+      std::size_t max_iterations,
+      const std::function<bool()>& is_satisfied) -> bool {
+    if (converged_) {
+      if (is_satisfied()) {
+        return true;
+      }
+      converged_ = false;
+    }
+
+    for (std::size_t iteration = 0; iteration < max_iterations; ++iteration) {
+      if (iterate_with_satisfaction(is_satisfied)) {
+        return true;
+      }
+    }
+
+    return converged_;
+  }
+```
+
+This loop requires both belief convergence and a caller-supplied satisfaction
+predicate. If the graph is already marked converged but the predicate is false,
+the cached convergence flag is cleared and iteration resumes.
 
 ### `reinitialize`
 
@@ -561,29 +630,17 @@ opinions, there is no genuine disagreement to track.
 An infinite message returns `false` immediately because in the presence of
 certainty the lone-standard rule does not apply.
 
-### `all_enabled_edges_converged`
+### `belief_converged`
 
 ```cpp
-  [[nodiscard]] auto all_enabled_edges_converged() const -> bool {
-    for (const auto& edge : edges_) {
-      if (!edge.is_enabled()) {
-        continue;
-      }
-
-      const auto message_difference = edge.message_difference();
-      if (!message_difference.has_value() || *message_difference > convergence_delta_) {
-        return false;
-      }
-    }
-
-    return true;
+  [[nodiscard]] auto belief_converged(double old_value, double new_value) const -> bool {
+    return std::abs(old_value - new_value) <= convergence_delta_;
   }
 ```
 
-Convergence requires that every enabled edge has a message difference that
-exists (i.e. has completed at least two iterations) and is within the threshold.
-Disabled edges are skipped — they are not participating and should not block
-convergence.
+The default convergence check compares variable belief values before and after
+the variable pass. It intentionally ignores message differences: message state
+can keep cycling even when the beliefs and domain constraints are stable.
 
 ### Data Members
 
@@ -663,6 +720,30 @@ auto Factor_graph::create_factor(
 This overload exists so users can write `graph.create_factor({e1, e2}, fn)`
 with brace syntax.
 
+The message-difference diagnostic forwards directly:
+
+```cpp
+auto Factor_graph::max_message_difference() const -> std::optional<double> {
+  return impl_->max_message_difference();
+}
+```
+
+The domain-specific iteration wrapper adapts the public predicate, which sees
+`const Factor_graph&`, to the implementation predicate, which needs no
+arguments:
+
+```cpp
+auto Factor_graph::iterate_until_satisfied(
+    std::size_t max_iterations,
+    std::function<bool(const Factor_graph&)> is_satisfied) -> bool {
+  return impl_->iterate_until_satisfied(
+      max_iterations,
+      [this, is_satisfied = std::move(is_satisfied)] {
+        return is_satisfied(*this);
+      });
+}
+```
+
 ### Closing The File
 
 ```cpp
@@ -691,14 +772,15 @@ The paper describes one iteration as:
 1. Update `x` via local minimization (factor pass).
 2. Compute weighted average `z` at equality nodes (variable pass).
 3. Update `u` with `u = u + alpha*(x - z)`, subject to reset rules.
-4. Check convergence on `n = z - u` messages.
+4. Check convergence.
 
 `iterate()` follows this sequence exactly. The paper's learning rate `alpha /
 rho_0` corresponds to `learning_rate_` (since the code normalizes `rho_0 = 1`
-for hard-constraint problems). The paper's convergence criterion — all
-messages identical from iteration to iteration within tolerance — maps to
-`all_enabled_edges_converged()` checking `message_difference` against
-`convergence_delta_`.
+for hard-constraint problems). This implementation reports default convergence
+when variable belief values stop changing within `convergence_delta_`.
+`max_message_difference()` still exposes edge message changes for diagnostics,
+which is useful when the dual variables continue a stable cycle after the
+beliefs have settled.
 
 The paper's weight logic for equality nodes:
 

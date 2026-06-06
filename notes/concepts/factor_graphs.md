@@ -96,7 +96,12 @@ while (!graph.iterate()) {
 
 Each call to `iterate()` runs one factor pass (all factors minimize) and one
 variable pass (all variables enforce equality). It returns `true` when
-converged.
+converged. Default convergence is belief-based: every variable's new value must
+be within `convergence_delta` of its previous value.
+
+For domains with an additional satisfaction criterion, use
+`iterate_until_satisfied()`. Circle packing uses this to require both stable
+beliefs and a sufficiently small `max_overlap`.
 
 ### Reading Results
 
@@ -123,8 +128,8 @@ types are:
 
 - `Variable_data` — per-variable state (current value, weight, incident
   edges). See [`notes/src/graph/variable_data.hpp.md`](../src/graph/variable_data.hpp.md).
-- `Edge_data` — per-edge message state (`x`, `z`, `u`, weights, convergence
-  bookkeeping). See [`notes/src/graph/edge_data.hpp.md`](../src/graph/edge_data.hpp.md).
+- `Edge_data` — per-edge message state (`x`, `z`, `u`, weights, and
+  message-difference diagnostics). See [`notes/src/graph/edge_data.hpp.md`](../src/graph/edge_data.hpp.md).
 - `Factor_data` — per-factor state (minimization function, exchange buffer,
   enabled flag). See [`notes/src/graph/factor_data.hpp.md`](../src/graph/factor_data.hpp.md).
 
@@ -164,7 +169,7 @@ The paper's iteration description maps directly to `Factor_graph::Impl::iterate`
 2. Compute `z` values (variable pass / enforce equality).
 3. Update `u` values (part of the variable pass, inside
    `Edge_data::set_result_from_variable`).
-4. Check convergence.
+4. Check convergence using variable belief values.
 
 ## Further Reading
 

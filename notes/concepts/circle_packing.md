@@ -162,6 +162,9 @@ not pull the circle away.
 
 A value near zero means the current beliefs form a feasible packing. The GUI
 uses this as an easy status readout while the graph iterates.
+It can also serve as the domain predicate for
+`Factor_graph::iterate_until_satisfied`, so convergence means both stable
+beliefs and sufficiently small overlap.
 
 ## Relationship To TWA
 
@@ -182,4 +185,6 @@ constraints over iterations.
 - [`notes/include/twalib/problems/circle_packing.hpp.md`](../include/twalib/problems/circle_packing.hpp.md) explains the public
   API.
 - [`notes/src/minimizers/in_range.cpp.md`](../src/minimizers/in_range.cpp.md) explains the boundary minimizer.
+- [`notes/src/graph/factor_graph.cpp.md`](../src/graph/factor_graph.cpp.md) explains
+  `iterate_until_satisfied`.
 - [`notes/concepts/weights.md`](weights.md) explains zero, standard, and infinite weights.

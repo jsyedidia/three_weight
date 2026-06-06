@@ -196,7 +196,12 @@ auto test_non_fast_generated_packing_converges() -> void {
   const auto circles = Circle_packing::generate_circles(777, radii, unit_range(), unit_range());
   const auto variables = Circle_packing::add_to_factor_graph(graph, circles, unit_range(), unit_range());
 
-  assert(graph.iterate_until_converged(2000));
+  const bool converged = graph.iterate_until_satisfied(2000, [&variables](const Factor_graph& current_graph) {
+    return Circle_packing::max_overlap(current_graph, variables, unit_range(), unit_range()) <
+           100.0 * convergence_delta;
+  });
+
+  assert(converged);
   assert(Circle_packing::max_overlap(graph, variables, unit_range(), unit_range()) < 100.0 * convergence_delta);
 }
 

@@ -938,6 +938,9 @@ maximum tracks the worst violation.
 
 Returns the worst violation found. A return value of zero or below means the
 packing is feasible (all circles are within bounds and non-overlapping).
+Callers can combine this with `Factor_graph::iterate_until_satisfied` when
+they want convergence to mean both stable variable beliefs and satisfied
+packing constraints.
 
 ### Closing The Namespace
 

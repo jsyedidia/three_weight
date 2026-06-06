@@ -57,7 +57,7 @@ Options:
   --builder NAME       Graph builder: compact or full (default: compact)
   --learning_rate X    Dual update learning rate / alpha (default: 1.0)
   --convergence_delta X
-                       Per-edge convergence threshold (default: 1e-5)
+                       Variable belief convergence threshold (default: 1e-5)
   --max_iterations N   Maximum solver iterations (default: 100000)
   --seed N             RNG seed for reproducible one-hot tie-breaking (default: 42)
   --print_solution     Print the solved grid after solving

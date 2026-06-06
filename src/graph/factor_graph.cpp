@@ -5,9 +5,11 @@
 #include "graph/variable_data.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
+#include <optional>
 #include <stdexcept>
 #include <utility>
 
@@ -72,6 +74,24 @@ class Factor_graph::Impl {
     }));
   }
 
+  [[nodiscard]] auto max_message_difference() const -> std::optional<double> {
+    double max_difference = 0.0;
+
+    for (const auto& edge : edges_) {
+      if (!edge.is_enabled()) {
+        continue;
+      }
+
+      const auto difference = edge.message_difference();
+      if (!difference.has_value()) {
+        return std::nullopt;
+      }
+      max_difference = std::max(max_difference, *difference);
+    }
+
+    return max_difference;
+  }
+
   [[nodiscard]] auto create_variable(double initial_value, Message_weight initial_weight) -> Variable_node {
     const auto variable = Variable_node{variables_.size()};
     variables_.emplace_back(Weighted_value{initial_value, initial_weight});
@@ -125,6 +145,12 @@ class Factor_graph::Impl {
   }
 
   auto iterate() -> bool {
+    return iterate_with_satisfaction([] {
+      return true;
+    });
+  }
+
+  auto iterate_with_satisfaction(const std::function<bool()>& is_satisfied) -> bool {
     if (converged_) {
       return true;
     }
@@ -133,10 +159,12 @@ class Factor_graph::Impl {
       factor.minimize(edges_, random_);
     }
 
+    bool beliefs_converged = true;
     for (auto& variable : variables_) {
       const auto enabled_edges = variable.enabled_edges(edges_);
       const Weighted_value result = enforce_variable_equality(enabled_edges);
       const bool has_lone_standard_message = has_lone_standard_message_to_variable(enabled_edges);
+      beliefs_converged = beliefs_converged && belief_converged(variable.value(), result.value);
       variable.update_result(result);
 
       for (const Graph_edge edge : enabled_edges) {
@@ -148,10 +176,14 @@ class Factor_graph::Impl {
     }
 
     ++iterations_;
-    converged_ = all_enabled_edges_converged();
+    converged_ = beliefs_converged;
 
     for (const auto& callback : iteration_callbacks_) {
       callback();
+    }
+
+    if (converged_ && !is_satisfied()) {
+      converged_ = false;
     }
 
     return converged_;
@@ -160,6 +192,25 @@ class Factor_graph::Impl {
   auto iterate_until_converged(std::size_t max_iterations) -> bool {
     for (std::size_t iteration = 0; iteration < max_iterations; ++iteration) {
       if (iterate()) {
+        return true;
+      }
+    }
+
+    return converged_;
+  }
+
+  auto iterate_until_satisfied(
+      std::size_t max_iterations,
+      const std::function<bool()>& is_satisfied) -> bool {
+    if (converged_) {
+      if (is_satisfied()) {
+        return true;
+      }
+      converged_ = false;
+    }
+
+    for (std::size_t iteration = 0; iteration < max_iterations; ++iteration) {
+      if (iterate_with_satisfaction(is_satisfied)) {
         return true;
       }
     }
@@ -287,19 +338,8 @@ class Factor_graph::Impl {
     return standard_count == 1;
   }
 
-  [[nodiscard]] auto all_enabled_edges_converged() const -> bool {
-    for (const auto& edge : edges_) {
-      if (!edge.is_enabled()) {
-        continue;
-      }
-
-      const auto message_difference = edge.message_difference();
-      if (!message_difference.has_value() || *message_difference > convergence_delta_) {
-        return false;
-      }
-    }
-
-    return true;
+  [[nodiscard]] auto belief_converged(double old_value, double new_value) const -> bool {
+    return std::abs(old_value - new_value) <= convergence_delta_;
   }
 
   double learning_rate_;
@@ -374,6 +414,10 @@ auto Factor_graph::num_enabled_factors() const -> std::size_t {
   return impl_->num_enabled_factors();
 }
 
+auto Factor_graph::max_message_difference() const -> std::optional<double> {
+  return impl_->max_message_difference();
+}
+
 auto Factor_graph::create_variable(double initial_value, Message_weight initial_weight) -> Variable_node {
   return impl_->create_variable(initial_value, initial_weight);
 }
@@ -418,6 +462,16 @@ auto Factor_graph::iterate() -> bool {
 
 auto Factor_graph::iterate_until_converged(std::size_t max_iterations) -> bool {
   return impl_->iterate_until_converged(max_iterations);
+}
+
+auto Factor_graph::iterate_until_satisfied(
+    std::size_t max_iterations,
+    std::function<bool(const Factor_graph&)> is_satisfied) -> bool {
+  return impl_->iterate_until_satisfied(
+      max_iterations,
+      [this, is_satisfied = std::move(is_satisfied)] {
+        return is_satisfied(*this);
+      });
 }
 
 auto Factor_graph::reinitialize() -> void {

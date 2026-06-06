@@ -25,10 +25,12 @@ The algorithm repeatedly asks:
 1. Given the current messages from the variables, what does each factor want?
 2. Given the current messages from the factors, what consensus should each
    variable enforce?
-3. How much did the messages change?
+3. Did the variable beliefs stop changing?
 
-When the enabled edge messages stop changing beyond the convergence threshold,
-the graph is considered converged.
+When every variable belief value changes by at most the convergence threshold,
+the graph is considered converged. Callers can also add domain-specific
+satisfaction checks for problems where stable beliefs are necessary but not
+quite enough.
 
 ## Factor Graphs In This Repository
 
@@ -327,24 +329,35 @@ disagreement should not keep pushing future messages.
 
 ## Convergence
 
-`Edge_data` stores the previous variable-to-factor message value after each
-factor update. It compares that previous message with the current one:
+After each variable pass, the graph compares every variable's previous belief
+value with its newly computed consensus value:
+
+```cpp
+beliefs_converged = beliefs_converged && belief_converged(variable.value(), result.value);
+```
+
+The helper applies the graph's configured threshold:
+
+```cpp
+return std::abs(old_value - new_value) <= convergence_delta_;
+```
+
+For ordinary `iterate()` and `iterate_until_converged()`, belief stability is
+the stopping rule. Some domains need an additional problem-level check. Circle
+packing can ask for both stable beliefs and `max_overlap <= tolerance` by using
+`Factor_graph::iterate_until_satisfied()`.
+
+`Edge_data` still stores the previous variable-to-factor message value after
+each factor update:
 
 ```cpp
 message_difference_ = std::abs(current_message_to_factor - *old_message_to_factor_);
 ```
 
-After both passes, the graph checks every enabled edge:
-
-```cpp
-if (!message_difference.has_value() || *message_difference > convergence_delta_) {
-  return false;
-}
-```
-
-The first iteration cannot converge because there is no previous message yet.
-After that, convergence means all enabled edge messages have changed by no more
-than the configured threshold.
+`Factor_graph::max_message_difference()` exposes the largest enabled-edge
+message change as a diagnostic. That quantity tracks dual-state motion; it is
+not the default stopping criterion because the messages can have a stable
+limit cycle after the variable beliefs have settled.
 
 ## Dynamic Factors
 

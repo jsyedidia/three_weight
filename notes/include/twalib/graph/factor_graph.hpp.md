@@ -82,6 +82,7 @@ The standard includes are:
 #include <functional>
 #include <initializer_list>
 #include <memory>
+#include <optional>
 #include <span>
 ```
 
@@ -89,6 +90,7 @@ The standard includes are:
 `<cstdint>` provides `std::uint64_t` for random seeds. `<functional>` provides
 callback storage. `<initializer_list>` supports convenient factor creation from
 brace lists. `<memory>` provides `std::unique_ptr` for the PImpl member.
+`<optional>` provides the return type for message-difference diagnostics.
 `<span>` supports factor creation from a non-owning view of edge handles.
 
 ### Namespace
@@ -128,7 +130,7 @@ Construction is declared as:
 `explicit` prevents accidental construction from a single `double`.
 
 `learning_rate` is the algorithm's update parameter for accumulated
-disagreement. `convergence_delta` is the per-edge message-change threshold used
+disagreement. `convergence_delta` is the variable belief-change threshold used
 by convergence checks. `random_seed` seeds the graph's deterministic random
 engine.
 
@@ -180,8 +182,8 @@ The convergence-threshold API is:
   auto set_convergence_delta(double convergence_delta) -> void;
 ```
 
-The getter reports the threshold used by convergence checks. The setter changes
-that threshold.
+The getter reports the threshold used by belief-value convergence checks. The
+setter changes that threshold.
 
 The random-seed API is:
 
@@ -217,11 +219,16 @@ The graph-size queries are:
   [[nodiscard]] auto num_enabled_edges() const -> std::size_t;
   [[nodiscard]] auto num_factors() const -> std::size_t;
   [[nodiscard]] auto num_enabled_factors() const -> std::size_t;
+  [[nodiscard]] auto max_message_difference() const -> std::optional<double>;
 ```
 
 They report total variable, edge, and factor counts, plus enabled counts for
 edges and factors. Enabled counts matter for dynamic problems such as fast
 circle packing, where some factors can be temporarily inactive.
+
+`max_message_difference()` reports the largest available enabled-edge message
+difference, or `std::nullopt` until every enabled edge has enough history. This
+is a diagnostic for the ADMM dual state, not the default convergence criterion.
 
 ### Graph Construction
 
@@ -319,6 +326,18 @@ Repeated iteration is run with:
 
 It runs up to `max_iterations` iterations and returns whether convergence was
 reached.
+
+Domain-specific repeated iteration is run with:
+
+```cpp
+  auto iterate_until_satisfied(
+      std::size_t max_iterations,
+      std::function<bool(const Factor_graph&)> is_satisfied) -> bool;
+```
+
+This also requires the graph's variable beliefs to converge, but it lets the
+caller add a domain predicate. Circle packing can use this to require
+`max_overlap(...) <= tolerance` before reporting convergence.
 
 The graph can be reset with:
 
